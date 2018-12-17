@@ -1,1 +1,101 @@
-121321313213213213131
+Sub 发货()
+'
+'加入开票金额
+    Range("AM5") = "开票金额"
+'第5行筛选升序
+    Rows("5:5").AutoFilter
+    ActiveWorkbook.ActiveSheet.AutoFilter.Sort.SortFields.Clear
+    ActiveWorkbook.ActiveSheet.AutoFilter.Sort.SortFields.Add Key:=Range( _
+        "C5"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortNormal
+    With ActiveWorkbook.ActiveSheet.AutoFilter.Sort
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+'调整总计位置
+    Rows("6:6").Select
+    Selection.Copy
+    Range("a65536").End(xlUp).Offset(1, 0).Select
+    ActiveSheet.Paste
+    Rows("6:6").Select
+    Application.CutCopyMode = False
+    Selection.Delete Shift:=xlUp
+'调灰色
+    With Range("AP5:AX5").Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0.499984740745262
+        .PatternTintAndShade = 0
+    End With
+    With Range("BG5:BH5").Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0.499984740745262
+        .PatternTintAndShade = 0
+    End With
+'批量发票赋值
+    Dim q, w, e As String
+    Dim arr()
+    Dim b As Integer
+    arr = Array("序号", "订单编号", "客户编码", "客户名称", "开票项目(必填)", "数量", "单位", "单价", "金额（必填）", "积分", "京东券", "优惠劵", "京东豆", "让利金额", "差价", "易付宝优惠", "应实收金额", "备注", "发票代码(回填项)")
+    For i = 42 To 60
+        Cells(5, i) = arr(i - 42)
+        Next i
+    For a = 6 To Range("af65536").End(xlUp).Row - 1
+        Cells(a, 44) = Cells(a, 32)
+    Cells(a, 45) = "个人"
+    Cells(a, 46) = Cells(a, 13)
+    Cells(a, 47) = Cells(a, 19)
+    Cells(a, 48) = "件"
+    Cells(a, 58) = Cells(a, 28)
+    Cells(a, 60) = Cells(a, 3)
+    Cells(a, 59) = Cells(a, 7) & Cells(a, 4) & Cells(a, 3)
+    If Range("r" & a) = "金条" Or Range("r" & a) = "金章" Then
+        q = "绿色转生产"
+            Rows(a).Interior.Color = 5287936
+        End If
+    If Range("g" & a) = "平安银行信用卡商城" Then
+        w = "黄色不开票"
+            Rows(a).Interior.Color = 65535
+        End If
+    If Range("f" & a) = "黄金订单" Then
+            If Range("ab" & a) / Range("v" & a) > 500 Then
+                b = 1
+                Range("ab" & a).Interior.Color = 15773696
+            End If
+            End If
+        Next a
+    If b = 1 Then
+        MsgBox ("件数或金额有误")
+        End If
+'批量发票替换
+    Dim brr()
+    brr() = Array("发货带证书 ", " 运费18", " 运费20", " 运费38", " 赠送珍珠耳钉")
+    For x = LBound(brr) To UBound(brr)
+        Range("AT6:AT100").Replace What:=brr(x), Replacement:="", LookAt:=xlPart, _
+            SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+            ReplaceFormat:=False
+    Next x
+'填写备注
+    If q <> "" Then
+        If w <> "" Then
+            e = "备注：" & q + "，" + w
+        Else: e = "备注：" & q
+        End If
+    End If
+    If q = "" Then
+        If w <> "" Then
+            e = "备注：" & w
+        End If
+    End If
+    Range("c" & a + 3) = e
+    Range("ar" & a + 2) = e
+End Sub
+
+
+
