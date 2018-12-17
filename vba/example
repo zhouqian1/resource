@@ -96,6 +96,18 @@ Sub 发货()
     Range("c" & a + 3) = e
     Range("ar" & a + 2) = e
 End Sub
+'正则取出金条克重
+Function GetStr(rng As Range)
+    With CreateObject("VBscript.regexp")
+        .Global = True
+        .Pattern = "\d+g"
+        If .Execute(rng).Count = 0 Then
+            GetStr = ""
+        Else
+            GetStr = .Execute(rng)(0)
+        End If
+    End With
+End Function
 
 
 
