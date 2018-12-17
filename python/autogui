@@ -1,0 +1,181 @@
+import tkinter
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+import pyautogui
+import pyperclip
+import re
+import time
+import win32api
+import win32con
+
+def go(*args):
+    global a
+    global b
+    a = comboxlist.get()
+    b = goodsdict.get(a)
+
+def paste(foo):
+    pyperclip.copy(foo)
+    pyautogui.hotkey('ctrl', 'v')
+
+def xinxi(x):
+    a = re.findall('收货人:(.*?),', x, re.S)
+    if re.findall('地址:(.*?),固定电话', x, re.S):
+        b = re.findall('地址:(.*?),固定电话', x, re.S)
+    else:
+        b = re.findall('地址:(.*?),手机号', x, re.S)
+    c = re.findall('手机号:(\d{11})', x, re.S)
+    #收货人
+    pyautogui.mouseDown(113, 228, button='left')
+    pyautogui.mouseUp(68, 228, button='left')
+    pyautogui.press("backspace")
+    paste(a[0])
+    #收货电话
+    pyautogui.mouseDown(327, 226, button='left')
+    pyautogui.mouseUp(255, 226, button='left')
+    pyautogui.press("backspace")
+    paste(c[0])
+    #收货地址
+    pyautogui.click(474, 280, button='left')
+    pyautogui.press("backspace")
+    paste(b[0])
+
+def produce():
+    pyautogui.doubleClick(120, 133, button='left')
+    time.sleep(1)
+    pyautogui.doubleClick(670, 318, button='left')
+    #铺货发货订单
+    pyautogui.doubleClick(125, 158, button='left')
+    time.sleep(0.5)
+    pyautogui.doubleClick(685, 350, button='left')
+    #黄金订单
+    pyautogui.doubleClick(129, 209, button='left')
+    time.sleep(0.5)
+    pyautogui.doubleClick(647, 299, button='left')
+    pyautogui.doubleClick(388, 207, button='left')
+    for i in range(2000):
+        win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL,0,0,-1)
+    pyautogui.doubleClick(668, 571, button='left')
+    #收货人电话地址
+    pyautogui.click(140, 235, button='left')
+    time.sleep(0.5)
+    pyautogui.press("backspace")
+    pyautogui.click(305, 235, button='left')
+    time.sleep(0.5)
+    pyautogui.press("backspace")
+    pyautogui.click(474, 280, button='left')
+    time.sleep(0.5)
+    pyautogui.press("backspace")
+    #备注
+    foo = u'旗舰店客户订单'
+    pyautogui.click(162, 414, button='left')
+    paste(foo)
+    #款号
+    pyautogui.click(82, 489, button='left')
+    time.sleep(0.5)
+    pyautogui.click(95, 489, button='left')
+    foo = 'Au-JT-Y61004'
+    paste(foo)
+    pyautogui.press("enter")
+
+def delivery(*args):
+    x = t1.get(1.0, 2.0)
+    if len(x) > 20:
+        if 'b' in globals():
+            #深圳零兑金
+            pyautogui.doubleClick(120, 133, button='left')
+            time.sleep(1)
+            pyautogui.doubleClick(670, 318, button='left')
+            #铺货发货订单
+            pyautogui.doubleClick(125, 158, button='left')
+            time.sleep(0.5)
+            pyautogui.doubleClick(685, 350, button='left')
+            #黄金/白银/贵金属订单
+            pyautogui.doubleClick(129, 209, button='left')
+            time.sleep(0.5)
+            if b[0:2] == 'Au':
+                pyautogui.doubleClick(647, 299, button='left')
+            elif b[0:2] == 'Ag':
+                pyautogui.doubleClick(647, 317, button='left')
+            else:
+                pyautogui.doubleClick(647, 385, button='left')
+            #旗舰店
+            pyautogui.doubleClick(388, 207, button='left')
+            for i in range(2000):
+                win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL,0,0,-1)
+            pyautogui.doubleClick(668, 571, button='left')
+            xinxi(x)
+            #开票
+            pyautogui.click(625, 206, button='left')
+            pyautogui.click(587, 222, button='left')
+            #预计交货日期
+            pyautogui.click(758, 301, button='left')
+            time.sleep(0.5)
+            pyautogui.click(706, 382, button='left')
+            #备注
+            foo = u'发货带证书 '+a
+            pyautogui.click(162, 433, button='left')
+            paste(foo)
+            #款号
+            pyautogui.click(82, 489, button='left')
+            time.sleep(0.5)
+            pyautogui.click(95, 489, button='left')
+            paste(b)
+            pyautogui.press("enter")
+            pyautogui.typewrite(t2.get(1.0, 2.0))
+            #pyautogui.press("enter")
+            pyautogui.typewrite(t3.get(1.0, 2.0))
+        else:
+            messagebox.showwarning('助手', '请选择商品')
+    else:
+        messagebox.showwarning('助手', '请粘贴客户信息')
+    
+xin= tkinter.Tk()
+xin.columnconfigure(0,minsize=50,weight=1)
+xin.columnconfigure(1,minsize=50,weight=1)
+xin.wm_attributes('-topmost',1)
+xin.geometry("210x180")
+xin.geometry("+1031+327")
+xin.title("助手by:qq2416880468")
+
+t1=Text(xin,height=6,width=30)
+b1=Button(xin,text='生产',command=lambda:produce(),width=21)
+b2=Button(xin,text='发货',command=lambda:delivery(),width=21)
+
+comvalue=tkinter.StringVar()
+comboxlist=ttk.Combobox(xin,textvariable=comvalue)
+comboxlist["values"]=('请选择商品',"100g金条","50g金条","20g金条","10g金条",'纪念册36g')
+comboxlist.current(0)
+comboxlist.bind("<<ComboboxSelected>>",go)
+
+the_Label_0 = Label(xin,text = '件数:',
+                  justify = LEFT,
+                  font = ('黑体',7),
+                  fg = 'black')
+t2=Text(xin,height=1,width=20)
+the_Label_1 = Label(xin,text = '金额:',
+                  justify = LEFT,
+                  font = ('黑体',7),
+                  fg = 'black')
+t3=Text(xin,height=1,width=20)
+
+t1.grid(row=0,column=0,columnspan=2,pady=0,padx=0,ipady=0,ipadx=0)
+b1.grid(row=1,column=0)
+b2.grid(row=1,column=1)
+
+comboxlist.grid(row=2,column=0,columnspan=2)
+the_Label_0.grid(row=3,column=0)
+t2.grid(row=3,column=1)
+the_Label_1.grid(row=4,column=0)
+t3.grid(row=4,column=1)
+
+goodsdict = {
+            '纪念册36g':'034611805001',
+            '10g金条':'035231809001',
+            '20g金条':'035231809002',
+            '50g金条':'035231809003',
+            '100g金条':'035231809004',
+            }
+
+xin.mainloop()
