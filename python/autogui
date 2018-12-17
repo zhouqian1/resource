@@ -45,11 +45,9 @@ def produce():
     pyautogui.doubleClick(120, 133, button='left')
     time.sleep(1)
     pyautogui.doubleClick(670, 318, button='left')
-    #铺货发货订单
     pyautogui.doubleClick(125, 158, button='left')
     time.sleep(0.5)
     pyautogui.doubleClick(685, 350, button='left')
-    #黄金订单
     pyautogui.doubleClick(129, 209, button='left')
     time.sleep(0.5)
     pyautogui.doubleClick(647, 299, button='left')
@@ -83,11 +81,9 @@ def delivery(*args):
     x = t1.get(1.0, 2.0)
     if len(x) > 20:
         if 'b' in globals():
-            #深圳零兑金
             pyautogui.doubleClick(120, 133, button='left')
             time.sleep(1)
             pyautogui.doubleClick(670, 318, button='left')
-            #铺货发货订单
             pyautogui.doubleClick(125, 158, button='left')
             time.sleep(0.5)
             pyautogui.doubleClick(685, 350, button='left')
