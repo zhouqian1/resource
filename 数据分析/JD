@@ -1,0 +1,19 @@
+import pandas as pd
+import re
+
+df = pd.read_excel('京东.xls')
+
+#建立字典 商品名称不唯一，sku唯一
+df_0 = df[['商品ID','商品名称']]
+df_1 = df_0.drop_duplicates(subset=['商品ID'],keep='first')
+df_3 = dict(zip(df_1['商品ID'].values,df_1['商品名称'].values))
+
+df_4 = df[['商品ID','下单时间','订购数量','结算金额','订单状态']]
+df_5 = df_4[~df_4['订单状态'].isin(['(删除)等待出库','(删除)新订单'])]
+df_5['下单时间'] = df_5['下单时间'].apply(lambda x: re.findall('-(\d+)-',x.split()[0])[0]+'月')
+df_6 = df_5[df_5['下单时间'].isin(['10月'])]
+df_6['商品ID'] = df_6['商品ID'].apply(lambda x: df_3.get(x))
+df_7 = df_6.groupby(['商品ID']).sum().sort_values(by=['结算金额'],ascending=False)
+df_7.loc['总计'] = df_7.apply(lambda x: x.sum())
+print(df_7)
+df_7.to_excel('京东旗舰店.xls')
