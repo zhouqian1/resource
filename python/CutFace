@@ -1,0 +1,78 @@
+import cv2
+import os
+import numpy as np
+
+a = 1
+b = 1
+c = 1
+d = 1
+
+## 读取图像，解决imread不能读取中文路径的问题
+def cv_imread(filePath):
+    cv_img=cv2.imdecode(np.fromfile(filePath,dtype=np.uint8),-1)
+    ## imdecode读取的是rgb，如果后续需要opencv处理的话，需要转换成bgr，转换后图片颜色会变化
+    ##cv_img=cv2.cvtColor(cv_img,cv2.COLOR_RGB2BGR)
+    return cv_img
+
+array_of_img = [] # this if for store all of the image data
+array_of_img1 = [] # this if for store all of the image data
+# this function is for read image,the input is directory name
+def read_directory(directory_name):
+    global a,b,c,d
+    # this loop is for read each image in this foder,directory_name is the foder name with images.
+    for filename in os.listdir(directory_name):
+        #print(filename) #just for test
+        #img is used to store the image data
+        if filename.lower().endswith(('.bmp', '.dib', '.png', '.jpg', '.jpeg', '.pbm', '.pgm', '.ppm', '.tif', '.tiff')):
+            print(filename)
+            image = cv_imread(directory_name + "/" + filename)
+            image1 = cv_imread(directory_name + "/" + filename)
+            array_of_img.append(image)
+            array_of_img1.append(image1)
+            print(len(array_of_img))
+            gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+            face_cascade = cv2.CascadeClassifier(directory_name + "/" +"haarcascade_frontalface_default.xml")
+            faces = face_cascade.detectMultiScale(
+               gray,
+               scaleFactor = 1.15,
+               minNeighbors = 3,
+               minSize = (5,5)
+            )
+            for(x,y,w,h) in faces:
+               cv2.rectangle(image,(x,y),(x+w,y+h),(16,41,222),2)
+               cv2.rectangle(image,(int(x-(h/2*3-w)/2),int(y-h*0.5)),(int(x+w+(h/2*3-w)/2),y+int(h*1.5)),(16,41,222),4)
+               print(x,y,w,h)
+               a = int(x-(h/2*3-w)/2)
+               b = int(y-h*0.5)
+               c = int(x+w+(h/2*3-w)/2)
+               d = y+int(h*1.5)
+               if a <= 0:
+                   if b >= 0:
+                       c = c + a
+                       b = int(b - a*4/3)
+                       d = int(d + a*4/3)
+                       a = 0
+                   else:
+                       if a/3 > b/4:
+                           d = d + b
+                           a = int(a - b*3/4)
+                           c = int(c + b*3/4)
+                           b = 0
+                       else:
+                           c = c + a
+                           b = int(b - a*4/3)
+                           d = int(d + a*4/3)
+                           a = 0
+               elif b <=0:
+                   if a > 0:
+                       d = d + b
+                       a = int(a - b*3/4)
+                       c = int(c + b*3/4)
+                       b = 0
+               print(a,b,c,d)
+               break
+            cv2.imencode('.jpg', image)[1].tofile('人脸检测/' + filename)
+            cropped = image1[b:d,a:c]
+            	#size34 = cv2.resize(cropped,(354,472),)
+            cv2.imencode('.jpg', cropped)[1].tofile('裁剪/' + filename)
+read_directory(os.getcwd())
